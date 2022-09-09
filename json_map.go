@@ -75,6 +75,15 @@ func (JSONMap) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	case "sqlite":
 		return "JSON"
 	case "mysql":
+		if v, ok := db.Dialector.(*mysql.Dialector); ok {
+			if strings.Contains(v.ServerVersion, "MariaDB") {
+				if strings.HasPrefix(v.ServerVersion, "5.") ||
+					strings.HasPrefix(v.ServerVersion, "10.0.") ||
+					strings.HasPrefix(v.ServerVersion, "10.1.") {
+					return "LONGTEXT"
+				}
+			}
+		}
 		return "JSON"
 	case "postgres":
 		return "JSONB"
